@@ -1,15 +1,14 @@
 import argparse
 
 from data import get_dataloaders
+from models import MLP
 
 
 def main(args):
     dataloader = get_dataloaders(args)
-    print(dataloader)
-
+    model = MLP()
     for input, target in dataloader['train']:
-        print(input)
-        print(target)
+        print(model(input))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch Higher Order Fuorier Training')
