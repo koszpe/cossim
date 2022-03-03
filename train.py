@@ -21,8 +21,10 @@ if __name__ == '__main__':
     parser.add_argument('--optimizer',
                         help='path to dataset', default='Adam')
 
-    parser.add_argument('--number-of-poly', default=5, type=int,
-                        help='number of polynoms')
+    parser.add_argument('--number-of-fn-part', default=5, type=int,
+                        help='number of polynom')
+    parser.add_argument('--p-degree', default=2, type=int,
+                        help='degree of polynom')
 
     parser.add_argument('--train-start', default=0, type=int,
                         help='train set first t')
