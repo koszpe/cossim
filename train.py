@@ -8,6 +8,11 @@ from models import __configs__
 from torch import nn, optim
 
 
+def get_accuracy(y_true, y_pred):
+    assert y_true.ndim == 1 and y_true.size() == y_pred.size()
+    return (y_true == y_pred).sum().item() / y_true.size(0)
+
+
 def main(args):
     dataloader = get_dataloaders(args)
     model_config = __configs__[args.config]
@@ -19,16 +24,20 @@ def main(args):
     print(f"Train on {device}.")
     model.to(device)
     for epoch in range(args.epochs):
-        tqdm_iter = tqdm(dataloader['train'], desc="training ? epoch. loss: ?", leave=True)
+        tqdm_iter = tqdm(dataloader['train'], desc="training ? epoch. loss: ? accuracy: ?", leave=True, ncols=100)
         for input, target in tqdm_iter:
+            accuracies = []
             input, target = input.to(device), target.to(device)
             optimizer.zero_grad()
             output = model(input)
             loss = loss_fn(output, target)
             loss.backward()
             optimizer.step()
-            tqdm_iter.set_description(f"training - {epoch}. epoch loss: {loss.item():.8f}")
+            acc = get_accuracy(target, output > 0)
+            accuracies.append(acc)
+            tqdm_iter.set_description(f"training - {epoch}. epoch loss: {loss.item():.8f} accuracy: {torch.Tensor(accuracies).mean() * 100:.3f}")
             tqdm_iter.refresh()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch Higher Order Fuorier Training')
@@ -38,6 +47,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr', '--learning-rate', default=0.01, type=float,
                         help='initial (base) learning rate', dest='lr')
     parser.add_argument('--optimizer', help='optimizer for training', default='AdamW')
+    parser.add_argument('--val_freq', default=5, type=int, help='How often to evaluate')
 
     parser.add_argument('--number-of-fn-part', default=1, type=int, help='number of polynom')
     parser.add_argument('--p-degree', default=2, type=int, help='degree of polynom')
