@@ -46,4 +46,4 @@ class FnDataset(Dataset):
         t = self.start + idx * self.step
         assert t < self.stop
         data = self.fn(torch.arange(t, t + self.step * (self.in_len + 1), self.step).unsqueeze(-1))
-        return data[:-1], data[-1]
+        return data[:-1] - 0.5, data[-1]

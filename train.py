@@ -34,8 +34,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch Higher Order Fuorier Training')
 
     parser.add_argument("--runname", default="dev", help="Name of run on tensorboard")
-    parser.add_argument('--epochs', default=100, type=int, help='number of total epochs to run')
-    parser.add_argument('--lr', '--learning-rate', default=0.001, type=float,
+    parser.add_argument('--epochs', default=1000, type=int, help='number of total epochs to run')
+    parser.add_argument('--lr', '--learning-rate', default=0.01, type=float,
                         help='initial (base) learning rate', dest='lr')
     parser.add_argument('--optimizer', help='optimizer for training', default='AdamW')
 
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', default=1024, type=int, help='training batch size')
     parser.add_argument('--num-workers', default=15, type=int, help='number of dataloader workers')
 
-    parser.add_argument('--config', help='model config', default='mlp_100_100_100')
+    parser.add_argument('--config', help='model config', default='mlp_10_10_10')
 
     args = parser.parse_args()
     main(args)
