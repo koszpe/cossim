@@ -3,7 +3,7 @@ from torch.utils.data import Dataset, DataLoader
 
 
 def get_dataloaders(args):
-    fn = create_function(args.number_of_poly)
+    fn = create_function(args.number_of_fn_part)
     datasets = {
         "train": FnDataset(fn=fn, in_len=args.in_len, start=args.train_start, stop=args.val_start, step=args.step),
         "val": FnDataset(fn=fn, in_len=args.in_len, start=args.val_start, stop=args.test_start, step=args.step),
@@ -25,7 +25,7 @@ def create_function(number_of_poly, range=(0, 100)):
     b = torch.FloatTensor(number_of_poly).uniform_(range[0], range[1]).T
     c = torch.FloatTensor(number_of_poly).uniform_(range[0], range[1]).T
     def function(t):
-        return torch.sign(torch.sin((a * t**2 + b*t + c).sum(dim=-1)))
+        return torch.sign(torch.sin((a * t**2 + b*t + c))).sum(dim=-1)
     return function
 
 
