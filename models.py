@@ -13,4 +13,16 @@ class MLP(nn.Module):
     def forward(self, x):
         for l in self.linears:
             x = l(x)
-        return x
+        return x.squeeze()
+
+
+__configs__ = {
+    "mlp_10_10_10": {
+        "type": MLP,
+        "hidden_sizes": [10, 10, 10]
+    },
+    "mlp_100_100_100": {
+        "type": MLP,
+        "hidden_sizes": [100, 100, 100]
+    }
+}

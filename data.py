@@ -26,7 +26,7 @@ def create_function(number_of_poly, p_degree, coef_range=(0, 100)):
     def function(t):
         t_pow = torch.cat([t ** i for i in reversed(range(p_degree))], dim=-1)
         P_t = t_pow @ C
-        return torch.sign(torch.sign(torch.sin((P_t))).sum(dim=-1))
+        return (torch.sign(torch.sign(torch.sin((P_t))).sum(dim=-1)) + 1) / 2
     return function
 
 
