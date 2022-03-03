@@ -12,6 +12,33 @@ def get_accuracy(y_true, y_pred):
     assert y_true.ndim == 1 and y_true.size() == y_pred.size()
     return (y_true == y_pred).sum().item() / y_true.size(0)
 
+def train(model, dataloader, device, optimizer, loss_fn, epoch):
+    tqdm_iter = tqdm(dataloader, desc="training ? epoch. loss: ? accuracy: ?", leave=True, ncols=100)
+    accuracies, losses = [], []
+    for input, target in tqdm_iter:
+        input, target = input.to(device), target.to(device)
+        optimizer.zero_grad()
+        output = model(input)
+        loss = loss_fn(output, target)
+        loss.backward()
+        optimizer.step()
+        acc = get_accuracy(target, output > 0)
+        accuracies.append(acc)
+        losses.append(loss.item())
+        tqdm_iter.set_description(
+            f"training - {epoch}. epoch loss: {torch.Tensor(losses).mean():.8f} accuracy: {torch.Tensor(accuracies).mean() * 100:.6f}")
+        tqdm_iter.refresh()
+
+def validate(model, dataloader, device, prefix="Validation"):
+    tqdm_iter = tqdm(dataloader, desc=f"{prefix}...", leave=False)
+    targets, outputs = [], []
+    for input, target in tqdm_iter:
+        input, target = input.to(device), target.to(device)
+        output = model(input)
+        targets.append(target)
+        outputs.append(output)
+    acc = get_accuracy(torch.cat(targets), torch.cat(outputs) > 0)
+    print(f"{prefix} accuracy: {acc * 100:.6f}")
 
 def main(args):
     dataloader = get_dataloaders(args)
@@ -24,19 +51,10 @@ def main(args):
     print(f"Train on {device}.")
     model.to(device)
     for epoch in range(args.epochs):
-        tqdm_iter = tqdm(dataloader['train'], desc="training ? epoch. loss: ? accuracy: ?", leave=True, ncols=100)
-        for input, target in tqdm_iter:
-            accuracies = []
-            input, target = input.to(device), target.to(device)
-            optimizer.zero_grad()
-            output = model(input)
-            loss = loss_fn(output, target)
-            loss.backward()
-            optimizer.step()
-            acc = get_accuracy(target, output > 0)
-            accuracies.append(acc)
-            tqdm_iter.set_description(f"training - {epoch}. epoch loss: {loss.item():.8f} accuracy: {torch.Tensor(accuracies).mean() * 100:.3f}")
-            tqdm_iter.refresh()
+        train(model, dataloader['train'], device, optimizer, loss_fn, epoch)
+        if epoch % args.val_freq == 0:
+            validate(model, dataloader['val'], device)
+    validate(model, dataloader['test'], device, prefix="Test")
 
 
 if __name__ == '__main__':
