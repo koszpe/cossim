@@ -7,7 +7,7 @@ class MLP(nn.Module):
         self.linears = []
         for i, (in_s, out_s)  in enumerate(zip([in_size] + hidden_sizes, hidden_sizes + [out_size])):
             linear = nn.Linear(in_s, out_s)
-            setattr(self, f"linear_{i}", nn.Linear(in_s, out_s))
+            setattr(self, f"linear_{i}", linear) # This line register the layer as parameters of the module
             self.linears.append(linear)
 
     def forward(self, x):

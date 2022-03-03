@@ -1,5 +1,6 @@
 import argparse
 
+import torch.cuda
 from tqdm import tqdm
 
 from data import get_dataloaders
@@ -14,9 +15,13 @@ def main(args):
     model = ModelCLS(**model_config)
     optimizer = getattr(optim, args.optimizer)(model.parameters(), lr=args.lr)
     loss_fn = nn.BCEWithLogitsLoss()
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Train on {device}.")
+    model.to(device)
     for epoch in range(args.epochs):
         tqdm_iter = tqdm(dataloader['train'], desc="training ? epoch. loss: ?", leave=True)
         for input, target in tqdm_iter:
+            input, target = input.to(device), target.to(device)
             optimizer.zero_grad()
             output = model(input)
             loss = loss_fn(output, target)
@@ -30,7 +35,7 @@ if __name__ == '__main__':
 
     parser.add_argument("--runname", default="dev", help="Name of run on tensorboard")
     parser.add_argument('--epochs', default=100, type=int, help='number of total epochs to run')
-    parser.add_argument('--lr', '--learning-rate', default=0.05, type=float,
+    parser.add_argument('--lr', '--learning-rate', default=0.001, type=float,
                         help='initial (base) learning rate', dest='lr')
     parser.add_argument('--optimizer', help='optimizer for training', default='AdamW')
 
