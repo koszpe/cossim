@@ -83,7 +83,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', default=1024, type=int, help='training batch size')
     parser.add_argument('--num-workers', default=15, type=int, help='number of dataloader workers')
 
-    parser.add_argument('--config', help='model config', default='lstm_100_2')
+    parser.add_argument('--config', help='model config', default='mlp_100_100_100_bn')
 
     args = parser.parse_args()
     main(args)
