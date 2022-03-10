@@ -23,6 +23,7 @@ def get_dataloaders(args):
 def create_function(number_of_poly, p_degree, coef_range=(0, 100)):
     p_degree += 1
     C = torch.FloatTensor(p_degree, number_of_poly).uniform_(coef_range[0], coef_range[1])
+    print(f"generator C: :\n{C.numpy()}")
     def function(t):
         t_pow = torch.cat([t ** i for i in reversed(range(p_degree))], dim=-1)
         P_t = t_pow @ C

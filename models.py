@@ -17,8 +17,30 @@ class MLP(nn.Module):
             x = l(x)
             if i < self.layer_num:
                 x = F.relu(x)
-        return x.squeeze()
+        return x
 
+
+class LSTM(nn.Module):
+
+    def __init__(self, input_size=1, hidden_size=100, num_layers=1, dropout=0, out_size=1) -> None:
+        super().__init__()
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+        self.out_size = out_size
+        self.lstm = nn.LSTM(
+            batch_first=True,
+            input_size=input_size,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            dropout=dropout
+        )
+        self.hidden2logit = nn.Linear(hidden_size, out_size)
+
+    def forward(self, x):
+        lstm_out, _ = self.lstm(x.unsqueeze(-1))
+        logit = self.hidden2logit(lstm_out[:, -1, :])
+        return logit
 
 __configs__ = {
     "mlp_10_10_10": {
@@ -28,5 +50,27 @@ __configs__ = {
     "mlp_100_100_100": {
         "type": MLP,
         "hidden_sizes": [100, 100, 100]
-    }
+    },
+    "lstm_100_2": {
+        "type": LSTM,
+        "hidden_size": 100,
+        "num_layers": 2,
+    },
+    "lstm_100_1": {
+        "type": LSTM,
+        "hidden_size": 100,
+        "num_layers": 1,
+    },
+    "lstm_100_5_do": {
+        "type": LSTM,
+        "hidden_size": 100,
+        "num_layers": 5,
+        "dropout": 0.5
+    },
+    "lstm_100_5": {
+        "type": LSTM,
+        "hidden_size": 100,
+        "num_layers": 5,
+    },
+
 }

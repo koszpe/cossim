@@ -4,7 +4,7 @@ import torch.cuda
 from tqdm import tqdm
 
 from data import get_dataloaders
-from models import __configs__
+from models import __configs__, MLP
 from torch import nn, optim
 
 
@@ -19,6 +19,7 @@ def train(model, dataloader, device, optimizer, loss_fn, epoch):
         input, target = input.to(device), target.to(device)
         optimizer.zero_grad()
         output = model(input)
+        output = output.squeeze()
         loss = loss_fn(output, target)
         loss.backward()
         optimizer.step()
@@ -35,6 +36,7 @@ def validate(model, dataloader, device, prefix="Validation"):
     for input, target in tqdm_iter:
         input, target = input.to(device), target.to(device)
         output = model(input)
+        output = output.squeeze()
         targets.append(target)
         outputs.append(output)
     acc = get_accuracy(torch.cat(targets), torch.cat(outputs) > 0)
@@ -44,6 +46,8 @@ def main(args):
     dataloader = get_dataloaders(args)
     model_config = __configs__[args.config]
     ModelCLS = model_config.pop("type")
+    if type(ModelCLS) is MLP:
+        model_config["in_size"] = args.in_len
     model = ModelCLS(**model_config)
     optimizer = getattr(optim, args.optimizer)(model.parameters(), lr=args.lr)
     loss_fn = nn.BCEWithLogitsLoss()
@@ -79,7 +83,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', default=1024, type=int, help='training batch size')
     parser.add_argument('--num-workers', default=15, type=int, help='number of dataloader workers')
 
-    parser.add_argument('--config', help='model config', default='mlp_10_10_10')
+    parser.add_argument('--config', help='model config', default='lstm_100_2')
 
     args = parser.parse_args()
     main(args)
