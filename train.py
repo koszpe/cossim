@@ -74,11 +74,11 @@ if __name__ == '__main__':
     parser.add_argument('--number-of-fn-part', default=1, type=int, help='number of polynom')
     parser.add_argument('--p-degree', default=2, type=int, help='degree of polynom')
 
-    parser.add_argument('--train-start', default=0, type=int, help='train set first t')
-    parser.add_argument('--val-start', default=100000, type=int, help='validation set first t')
-    parser.add_argument('--test-start', default=150000, type=int, help='test set first t')
+    parser.add_argument('--train-size', default=100000, type=int, help='train set first t')
+    parser.add_argument('--val-size', default=50000, type=int, help='validation set first t')
+    parser.add_argument('--test-size', default=50000, type=int, help='test set first t')
     parser.add_argument('--step', default=1.0, type=float, help='step of t')
-    parser.add_argument('--in-len', default=9, type=int, help='step of t')
+    parser.add_argument('--in-len', default=90, type=int, help='step of t')
 
     parser.add_argument('--batch-size', default=1024, type=int, help='training batch size')
     parser.add_argument('--num-workers', default=15, type=int, help='number of dataloader workers')

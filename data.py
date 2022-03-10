@@ -5,9 +5,9 @@ from torch.utils.data import Dataset, DataLoader
 def get_dataloaders(args):
     fn = create_function(args.number_of_fn_part, args.p_degree)
     datasets = {
-        "train": FnDataset(fn=fn, in_len=args.in_len, start=args.train_start, stop=args.val_start, step=args.step),
-        "val": FnDataset(fn=fn, in_len=args.in_len, start=args.val_start, stop=args.test_start, step=args.step),
-        "test": FnDataset(fn=fn, in_len=args.in_len, start=args.test_start, stop=args.test_start * 2 - args.val_start, step=args.step)
+        "train": FnDataset(fn=fn, in_len=args.in_len, size=args.train_size),
+        "val": FnDataset(fn=fn, in_len=args.in_len, size=args.val_size),
+        "test": FnDataset(fn=fn, in_len=args.in_len, size=args.test_size)
     }
 
     dataloaders = {
@@ -32,19 +32,15 @@ def create_function(number_of_poly, p_degree, coef_range=(0, 100)):
 
 
 class FnDataset(Dataset):
-    def __init__(self, fn, in_len, start, stop, step=1.0):
+    def __init__(self, fn, in_len, size):
         super().__init__()
         self.fn = fn
         self.in_len = in_len
-        self.start = start
-        self.stop = stop
-        self.step = step
+        self.size = size
 
     def __len__(self):
-        return int((self.stop - self.start) // self.step - (self.in_len + 1))
+        return self.size
 
     def __getitem__(self, idx):
-        t = self.start + idx * self.step
-        assert t < self.stop
-        data = self.fn(torch.arange(t, t + self.step * (self.in_len + 1), self.step).unsqueeze(-1))
+        data = self.fn(torch.arange(self.in_len + 1, dtype=torch.float32).unsqueeze(-1))
         return data[:-1] - 0.5, data[-1]
