@@ -20,11 +20,10 @@ def get_dataloaders(args):
     return dataloaders
 
 
-def create_function(number_of_poly, p_degree, coef_range=(0, 100)):
+def create_function(number_of_poly, p_degree, coef_range=(0, 1000)):
     p_degree += 1
-    C = torch.FloatTensor(p_degree, number_of_poly).uniform_(coef_range[0], coef_range[1])
-    print(f"generator C: :\n{C.numpy()}")
     def function(t):
+        C = torch.FloatTensor(p_degree, number_of_poly).uniform_(coef_range[0], coef_range[1])
         t_pow = torch.cat([t ** i for i in reversed(range(p_degree))], dim=-1)
         P_t = t_pow @ C
         return (torch.sign(torch.sin((P_t)).sum(dim=-1)) + 1) / 2
