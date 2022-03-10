@@ -46,7 +46,7 @@ def main(args):
     dataloader = get_dataloaders(args)
     model_config = __configs__[args.config]
     ModelCLS = model_config.pop("type")
-    if type(ModelCLS) is MLP:
+    if ModelCLS is MLP:
         model_config["in_size"] = args.in_len
     model = ModelCLS(**model_config)
     optimizer = getattr(optim, args.optimizer)(model.parameters(), lr=args.lr)
