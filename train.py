@@ -79,7 +79,6 @@ if __name__ == '__main__':
     parser.add_argument('--train-size', default=100000, type=int, help='train set first t')
     parser.add_argument('--val-size', default=50000, type=int, help='validation set first t')
     parser.add_argument('--test-size', default=50000, type=int, help='test set first t')
-    parser.add_argument('--step', default=1.0, type=float, help='step of t')
     parser.add_argument('--in-len', default=90, type=int, help='step of t')
 
     parser.add_argument('--batch-size', default=1024, type=int, help='training batch size')
