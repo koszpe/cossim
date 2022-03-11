@@ -1,5 +1,6 @@
 import argparse
 
+import numpy as np
 import torch.cuda
 from tqdm import tqdm
 
@@ -32,14 +33,15 @@ def train(model, dataloader, device, optimizer, loss_fn, epoch):
 
 def validate(model, dataloader, device, prefix="Validation"):
     tqdm_iter = tqdm(dataloader, desc=f"{prefix}...", leave=False)
-    targets, outputs = [], []
+    accuracies, batch_sizes = [], []
     for input, target in tqdm_iter:
         input, target = input.to(device), target.to(device)
         output = model(input)
         output = output.squeeze()
-        targets.append(target)
-        outputs.append(output)
-    acc = get_accuracy(torch.cat(targets), torch.cat(outputs) > 0)
+        acc = get_accuracy(target, output > 0)
+        accuracies.append(acc)
+        batch_sizes.append(len(target))
+    acc = np.average(accuracies, weights=batch_sizes)
     print(f"{prefix} accuracy: {acc * 100:.6f}")
 
 def main(args):
@@ -74,11 +76,11 @@ if __name__ == '__main__':
     parser.add_argument('--number-of-fn-part', default=1, type=int, help='number of polynom')
     parser.add_argument('--p-degree', default=2, type=int, help='degree of polynom')
 
-    parser.add_argument('--train-start', default=0, type=int, help='train set first t')
-    parser.add_argument('--val-start', default=100000, type=int, help='validation set first t')
-    parser.add_argument('--test-start', default=150000, type=int, help='test set first t')
+    parser.add_argument('--train-size', default=100000, type=int, help='train set first t')
+    parser.add_argument('--val-size', default=50000, type=int, help='validation set first t')
+    parser.add_argument('--test-size', default=50000, type=int, help='test set first t')
     parser.add_argument('--step', default=1.0, type=float, help='step of t')
-    parser.add_argument('--in-len', default=9, type=int, help='step of t')
+    parser.add_argument('--in-len', default=90, type=int, help='step of t')
 
     parser.add_argument('--batch-size', default=1024, type=int, help='training batch size')
     parser.add_argument('--num-workers', default=15, type=int, help='number of dataloader workers')
