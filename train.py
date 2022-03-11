@@ -1,5 +1,6 @@
 import argparse
 
+import numpy as np
 import torch.cuda
 from tqdm import tqdm
 
@@ -32,14 +33,15 @@ def train(model, dataloader, device, optimizer, loss_fn, epoch):
 
 def validate(model, dataloader, device, prefix="Validation"):
     tqdm_iter = tqdm(dataloader, desc=f"{prefix}...", leave=False)
-    targets, outputs = [], []
+    accuracies, batch_sizes = [], []
     for input, target in tqdm_iter:
         input, target = input.to(device), target.to(device)
         output = model(input)
         output = output.squeeze()
-        targets.append(target)
-        outputs.append(output)
-    acc = get_accuracy(torch.cat(targets), torch.cat(outputs) > 0)
+        acc = get_accuracy(target, output > 0)
+        accuracies.append(acc)
+        batch_sizes.append(len(target))
+    acc = np.average(accuracies, weights=batch_sizes)
     print(f"{prefix} accuracy: {acc * 100:.6f}")
 
 def main(args):
