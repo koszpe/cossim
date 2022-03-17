@@ -30,14 +30,14 @@ class ScaleGrad(torch.autograd.Function):
 
 def scatter(x, y, title='', x_label='', y_label=''):
     plt.scatter(x, y)
-    plt.title(title)
+    plt.title(title, y=1.0, pad=14)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.show()
 
 def get_grads(a, b, scale_factor):
     a, b = a.clone(), b.clone()
-    a_s, b_s, a_norms, b_norms, a_grads, b_grads, cossims = [], [], [], [], [], [], []
+    a_s, b_s, a_norms, b_norms, a_grads, b_grads, cossims, cossim_diffs = [], [], [], [], [], [], [], []
     sim = nn.CosineSimilarity(dim=0)
     for i in tqdm(range(args.sample_number)):
         rand_coef = (i + 1) / args.sample_number * 10
@@ -46,6 +46,9 @@ def get_grads(a, b, scale_factor):
         b_ = b
         a_.requires_grad = True
         b_.requires_grad = True
+
+        optimizer = torch.optim.SGD([a_], lr=0.01)
+        optimizer.zero_grad()
         a_scaled = ScaleGrad.apply(a_, scale_factor)
         a_s.append(a_)
         b_s.append(b_)
@@ -57,18 +60,29 @@ def get_grads(a, b, scale_factor):
         cossim.backward()
         a_grads.append(a_.grad.detach())
         b_grads.append(b_.grad.detach())
-    return a_norms, b_norms, a_grads, b_grads
+
+        cossim_old = cossim
+        optimizer.step()
+        with torch.no_grad():
+            cossim = sim(a_scaled, b_)
+        cossim_diffs.append((cossim_old - cossim).detach())
+
+    return a_norms, b_norms, a_grads, b_grads, cossim_diffs
 
 def main(args):
     a = torch.DoubleTensor(args.vector_dim).uniform_(-1, 1)
     b = torch.DoubleTensor(args.vector_dim).uniform_(-1, 1)
 
-    a_norms, b_norms, a_grads, b_grads = get_grads(a, b, scale_factor=args.scale_grad)
+    a_norms, b_norms, a_grads, b_grads, cossim_diffs = get_grads(a, b, scale_factor=args.scale_grad)
 
     scatter(torch.cat(a_norms), torch.stack(a_grads).abs().mean(-1),
             title=f"Gradients of cossim with respect to a, scaling: grad * norm^{args.scale_grad}",
             x_label="norm of a",
             y_label="avg grad of a")
+    scatter(torch.cat(a_norms), torch.stack(cossim_diffs),
+            title=f"Cossim diff between before and after optim step, scaling: grad * norm^{args.scale_grad}",
+            x_label="norm of a",
+            y_label="cossim diff")
     # scatter(torch.cat(a_norms), torch.stack(b_grads).abs().mean(-1),
     #         title=f"Gradients of cossim with respect to b, scaling={args.scale_grad}",
     #         x_label="norm of a",
