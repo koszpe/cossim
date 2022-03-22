@@ -88,6 +88,9 @@ def main(args):
     #         x_label="norm of a",
     #         y_label="avg grad of b")
     pass
+    grads = torch.stack(a_grads)
+    norm = torch.cat(a_norms).unsqueeze(-1).repeat(1, 128)
+    grads.mean(), (grads * norm ** 2 / (norm ** 2).mean()).mean(), (grads * norm ** 2 / (norm).mean() ** 2).mean()
 
 
 if __name__ == '__main__':
