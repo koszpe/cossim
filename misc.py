@@ -16,8 +16,11 @@ class ScaleGrad(torch.autograd.Function):
         # x = (x ** 2).sum(dim=-1, keepdim=True)
         # return grad_output * torch.sqrt(x ** 3) / torch.sqrt(x.mean() ** 3)
         norm = torch.norm(x, p=2, dim=1, keepdim=True)
-        # print(grad_output.shape)
-        # print((x @ grad_output.T).sum(-1))
-        # for a, b in zip(x, grad_output):
-        #     print(torch.dot(a, b))
-        return grad_output * norm ** 2 / norm.mean() ** 2
+        grad_mean = grad_output.mean()
+        scaled_grad = grad_output * norm ** 2
+        scaled_grad_mean = scaled_grad.mean()
+        rescaled_grad = scaled_grad * (grad_mean / scaled_grad_mean)
+
+        # print(f"orig: {grad_mean.item()} scaled: {scaled_grad_mean.item()} ratio: {(grad_mean / scaled_grad_mean)} rescaled: {rescaled_grad.mean().item()}")
+        return rescaled_grad
+        # return grad_output * nor

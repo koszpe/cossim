@@ -23,8 +23,8 @@ def train(model, dataloader, device, optimizer, similarity, epoch):
         output = output.squeeze()
         output.register_hook(lambda grad: grads.append(grad.mean(-1).cpu()))
         if args.scale_grad:
-            output = ScaleGrad.apply(output.double())
-            target = ScaleGrad.apply(target.double())
+            output = ScaleGrad.apply(output)
+            target = ScaleGrad.apply(target)
         cossim = similarity(output, target)
         loss = - cossim.mean()
         loss.backward()
@@ -105,13 +105,13 @@ if __name__ == '__main__':
     parser.add_argument('--val_freq', default=5, type=int, help='How often to evaluate')
 
     parser.add_argument('--vector-dim', default=128, type=int, help='number of polynom')
-    parser.add_argument('--operation-type', default="hadamard", type=str, help='degree of polynom')
+    parser.add_argument('--operation-type', default="sum", choices=["hadamard", "sum"], type=str, help='degree of polynom')
 
-    parser.add_argument('--train-size', default=1000, type=int, help='train set first t')
-    parser.add_argument('--val-size', default=500, type=int, help='validation set first t')
-    parser.add_argument('--test-size', default=500, type=int, help='test set first t')
+    parser.add_argument('--train-size', default=100000, type=int, help='train set first t')
+    parser.add_argument('--val-size', default=50000, type=int, help='validation set first t')
+    parser.add_argument('--test-size', default=50000, type=int, help='test set first t')
 
-    parser.add_argument('--batch-size', default=16, type=int, help='training batch size')
+    parser.add_argument('--batch-size', default=1024, type=int, help='training batch size')
     parser.add_argument('--num-workers', default=15, type=int, help='number of dataloader workers')
 
     parser.add_argument('--config', help='model config', default='mlp_100_100_100')

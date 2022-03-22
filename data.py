@@ -24,12 +24,14 @@ def create_function(vector_dim, operation_type, coo_range=(-1, 1)):
     def function():
         rand_coef = torch.randint(low=1, high=10, size=[1])
         a = torch.FloatTensor(vector_dim).uniform_(coo_range[0], coo_range[1]) * rand_coef
-        # b = torch.FloatTensor(vector_dim).uniform_(coo_range[0], coo_range[1]) * rand_coef
-        b = a
-        b[0] = -a[1]
-        b[1] = a[0]
+        b = torch.FloatTensor(vector_dim).uniform_(coo_range[0], coo_range[1]) * rand_coef
+        # b = a
+        # b[0] = -a[1]
+        # b[1] = a[0]
         if operation_type == "hadamard":
             target = a * b
+        elif operation_type == "sum":
+            target = a + b
         else:
             raise NotImplementedError
         return a, b, target
