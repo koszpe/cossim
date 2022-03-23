@@ -52,17 +52,17 @@ def train(model, dataloader, device, optimizer, similarity, epoch):
             f" as cossim: {torch.Tensor(after_similarities).mean():.6f} o norm: {torch.cat(norms).mean():.3f} "
             f"o std: {torch.cat(norms).std():.4f}, grad norm: {torch.Tensor(grad_norms).mean():.3f}")
         tqdm_iter.refresh()
-    plt.scatter(torch.cat(norms).squeeze(), torch.cat(cossim_diffs))
-    # plt.scatter(norms[-1].squeeze(), cossim_diffs[-1])
-    plt.title("x: norm, y: cossim diff")
-    # plt.yscale("log")
-    plt.show()
-
-    plt.scatter(torch.cat(norms).squeeze(), torch.abs(torch.cat(grads)))
-    # plt.scatter(norms[-1].squeeze(), cossim_diffs[-1])
-    plt.title("x: norm, y: grads")
-    # plt.yscale("log")
-    plt.show()
+    # plt.scatter(torch.cat(norms).squeeze(), torch.cat(cossim_diffs))
+    # # plt.scatter(norms[-1].squeeze(), cossim_diffs[-1])
+    # plt.title("x: norm, y: cossim diff")
+    # # plt.yscale("log")
+    # plt.show()
+    #
+    # plt.scatter(torch.cat(norms).squeeze(), torch.abs(torch.cat(grads)))
+    # # plt.scatter(norms[-1].squeeze(), cossim_diffs[-1])
+    # plt.title("x: norm, y: grads")
+    # # plt.yscale("log")
+    # plt.show()
 
 def validate(model, dataloader, device, similarity, prefix="Validation"):
     tqdm_iter = tqdm(dataloader, desc=f"{prefix}...", leave=False)
