@@ -93,8 +93,10 @@ def main(args):
     for epoch in range(args.epochs):
         train(model, dataloader['train'], device, optimizer, similarity, epoch)
         if epoch % args.val_freq == 0:
-            validate(model, dataloader['val'], device, similarity)
-    validate(model, dataloader['test'], device, prefix="Test")
+            with torch.no_grad():
+                validate(model, dataloader['val'], device, similarity)
+    with torch.no_grad():
+        validate(model, dataloader['test'], device, prefix="Test")
 
 
 if __name__ == '__main__':
