@@ -49,7 +49,8 @@ def train(model, dataloader, device, optimizer, similarity, epoch):
         losses.append(loss.item())
         tqdm_iter.set_description(
             f"training - {epoch}. epoch loss: {torch.Tensor(losses).mean():.8f} cossim: {torch.Tensor(similarities).mean():.6f}"
-            f" after step cossim: {torch.Tensor(after_similarities).mean():.6f}")
+            f" as cossim: {torch.Tensor(after_similarities).mean():.6f} o norm: {torch.cat(norms).mean():.3f} "
+            f"o std: {torch.cat(norms).std():.4f}, grad norm: {torch.Tensor(grad_norms).mean():.3f}")
         tqdm_iter.refresh()
     plt.scatter(torch.cat(norms).squeeze(), torch.cat(cossim_diffs))
     # plt.scatter(norms[-1].squeeze(), cossim_diffs[-1])
