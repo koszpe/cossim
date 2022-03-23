@@ -99,7 +99,7 @@ if __name__ == '__main__':
     parser.add_argument('--vector-dim', default=128, type=int)
     parser.add_argument('--sample-number', default=100, type=int)
 
-    parser.add_argument('--scale-grad', default=2, type=int)
+    parser.add_argument('--scale-grad', default=0, type=int)
 
     args = parser.parse_args()
     main(args)

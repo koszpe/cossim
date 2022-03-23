@@ -12,10 +12,10 @@ import matplotlib.pyplot as plt
 
 
 def train(model, dataloader, device, optimizer, similarity, epoch):
-    tqdm_iter = tqdm(dataloader, desc="training ? epoch. loss: ? accuracy: ?", leave=True, ncols=100)
+    tqdm_iter = tqdm(dataloader, desc="training ? epoch. loss: ? accuracy: ?", leave=True, ncols=170)
     similarities, losses = [], []
     after_similarities, norms, cossim_diffs = [], [], []
-    grads = []
+    grads, grad_norms = [], []
     for input, target in tqdm_iter:
         input, target = input.to(device), target.to(device)
         optimizer.zero_grad()
@@ -28,6 +28,8 @@ def train(model, dataloader, device, optimizer, similarity, epoch):
         cossim = similarity(output, target)
         loss = - cossim.mean()
         loss.backward()
+        norm_before_clip = torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)
+        grad_norms.append(norm_before_clip)
         optimizer.step()
         with torch.no_grad():
             output = model(input)
@@ -116,6 +118,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--config', help='model config', default='mlp_100_100_100')
     parser.add_argument('--scale-grad', default=0, type=int, choices=[0, 1])
+
+    parser.add_argument('--grad_clip', default=1000.0, type=float)
 
     args = parser.parse_args()
     main(args)
