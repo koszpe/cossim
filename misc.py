@@ -21,6 +21,7 @@ class ScaleGrad(torch.autograd.Function):
         scaled_grad = grad_output * norm ** 2
         scaled_grad_norm = norm_fn(scaled_grad)
         rescaled_grad = scaled_grad * (grad_norm / scaled_grad_norm)
+        # rescaled_grad = scaled_grad * (0.001 / scaled_grad_norm)
 
         # print(f"orig: {grad_mean.item()} scaled: {scaled_grad_mean.item()} ratio: {(grad_mean / scaled_grad_mean)} rescaled: {rescaled_grad.mean().item()}")
         return rescaled_grad
